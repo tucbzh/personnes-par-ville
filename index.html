@@ -23,11 +23,35 @@ button{padding:7px 9px;border:1px solid #aaa;border-radius:5px;background:#f7f7f
 .lrow{display:flex;align-items:center;gap:7px;margin:3px 0}
 .swatch{width:15px;height:10px;border-radius:2px;display:inline-block}
 #count{margin-top:7px;font-weight:600}
+
+#toggleControls{
+  position:absolute;z-index:1100;top:12px;left:12px;
+  width:44px;height:44px;border:0;border-radius:22px;
+  background:white;box-shadow:0 2px 10px #0004;
+  font-size:21px;cursor:pointer;
+}
+#controls{transition:opacity .15s,transform .15s}
+#controls.collapsed{display:none}
+#controls:not(.collapsed){display:block}
+@media (min-width:700px){
+  #toggleControls{display:none}
+  #controls{display:block!important}
+}
+@media (max-width:699px){
+  #controls{
+    top:64px;left:10px;width:calc(100% - 20px);
+    max-height:calc(100% - 74px);
+    box-sizing:border-box;
+  }
+  #controlsPanel{max-height:inherit;overflow:auto}
+}
 </style>
 </head>
 <body>
 <div id="map"></div>
-<div id="controls">
+<button id="toggleControls" aria-expanded="false" aria-controls="controlsPanel" title="Afficher les contrôles">☰</button>
+<div id="controls" class="collapsed">
+<div id="controlsPanel">
 <h3>Carte interactive — Rennes</h3>
 <div class="small">410 communes · 1 642 personnes</div>
 
@@ -69,7 +93,7 @@ button{padding:7px 9px;border:1px solid #aaa;border-radius:5px;background:#f7f7f
 <div class="lrow"><span class="swatch" style="background:#313695"></span>&gt;100 km</div>
 </div>
 <div class="small" style="margin-top:9px">La taille des points est proportionnelle au nombre de personnes.</div>
-</div>
+</div></div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
@@ -77,6 +101,16 @@ const places=[{"ville":"Betton","source":"Betton","personnes":34,"insee":"35024"
 const RENNES=[48.11198,-1.67429];
 const maxDataDistance=659.16;
 const zoneColors=['#d73027','#f46d43','#fdae61','#fee08b','#d9ef8b','#a6d96a','#66bd63','#1a9850','#74add1','#4575b4','#313695'];
+
+
+const toggleControls=document.getElementById('toggleControls');
+const controls=document.getElementById('controls');
+toggleControls.addEventListener('click',()=>{
+  const open=controls.classList.toggle('collapsed')===false;
+  toggleControls.setAttribute('aria-expanded',String(open));
+  toggleControls.textContent=open?'×':'☰';
+  toggleControls.title=open?'Masquer les contrôles':'Afficher les contrôles';
+});
 
 const map=L.map('map',{preferCanvas:true}).setView(RENNES,9);
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'&copy; OpenStreetMap contributors'}).addTo(map);
